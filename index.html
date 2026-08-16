@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>致小渔 · 生日仪式</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&family=Noto+Serif+SC:wght@400;600;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg1:#1a1033;
+    --bg2:#2d1b4e;
+    --bg3:#0f0a1f;
+    --pink:#ffb3d9;
+    --rose:#ff6fae;
+    --gold:#ffd966;
+    --cream:#fff4e6;
+    --violet:#b388ff;
+    --cyan:#7af5ff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;width:100%;overflow-x:hidden}
+  body{
+    font-family:"Noto Serif SC",serif;
+    background:radial-gradient(ellipse at top,#2d1b4e 0%,#1a1033 40%,#0f0a1f 100%);
+    color:var(--cream);
+    line-height:1.9;
+    overflow-y:auto;
+    cursor:none;
+  }
+  /* ===== 自定义光标 ===== */
+  .cursor-dot,.cursor-ring{
+    position:fixed;top:0;left:0;pointer-events:none;z-index:9999;
+    border-radius:50%;mix-blend-mode:screen;
+    transform:translate(-50%,-50%);
+  }
+  .cursor-dot{width:8px;height:8px;background:var(--gold);box-shadow:0 0 12px var(--gold)}
+  .cursor-ring{width:36px;height:36px;border:1.5px solid var(--pink);transition:transform .15s ease-out, width .2s, height .2s}
+  /* ===== 加载页 ===== */
+  #loader{
+    position:fixed;inset:0;z-index:9000;
+    background:radial-gradient(ellipse at center,#2d1b4e,#0f0a1f);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    transition:opacity 1.2s ease, visibility 1.2s;
+  }
+  #loader.hide{opacity:0;visibility:hidden}
+  .loader-title{
+    font-family:"Ma Shan Zheng",serif;font-size:clamp(2.5rem,8vw,5rem);
+    color:var(--gold);text-shadow:0 0 30px rgba(255,217,102,.5);
+    letter-spacing:.3em;margin-left:.3em;
+  }
+  .loader-sub{margin-top:1.5rem;color:var(--pink);letter-spacing:.5em;font-size:.9rem;animation:pulse 2s infinite}
+  .loader-bar{width:240px;height:2px;background:rgba(255,255,255,.1);margin-top:2rem;overflow:hidden;border-radius:2px}
+  .loader-bar::after{content:"";display:block;width:30%;height:100%;background:linear-gradient(90deg,transparent,var(--rose),transparent);animation:load 1.5s infinite}
+  @keyframes load{0%{transform:translateX(-100%)}100%{transform:translateX(400%)}}
+  @keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
+  /* ===== Canvas ===== */
+  #fireworks,#stars{position:fixed;inset:0;pointer-events:none;z-index:1}
+  #stars{z-index:2}
+  /* ===== 主结构 ===== */
+  main{position:relative;z-index:5}
+  section{padding:8rem 6vw;position:relative}
+  .reveal{opacity:0;transform:translateY(60px);transition:opacity 1.4s ease,transform 1.4s ease}
+  .reveal.in{opacity:1;transform:translateY(0)}
+  /* ===== Hero ===== */
+  .hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding-top:0}
+  .hero-eyebrow{
+    font-family:"ZCOOL XiaoWei",serif;color:var(--pink);
+    letter-spacing:.8em;font-size:clamp(.8rem,2vw,1.1rem);
+    margin-bottom:2rem;opacity:0;animation:fadeUp 1.6s .3s forwards
+  }
+  .hero-title{
+    font-family:"Ma Shan Zheng",serif;
+    font-size:clamp(4rem,16vw,11rem);
+    background:linear-gradient(135deg,#fff4e6 0%,#ffd966 30%,#ff6fae 60%,#b388ff 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    letter-spacing:.15em;line-height:1.1;
+    text-shadow:0 0 80px rgba(255,111,174,.4);
+    opacity:0;animation:fadeUp 2s .6s forwards;
+    cursor:pointer;user-select:none;
+  }
+  .hero-title:hover{filter:brightness(1.2)}
+  .hero-sub{
+    margin-top:2.5rem;font-family:"ZCOOL XiaoWei",serif;
+    font-size:clamp(1.1rem,3vw,1.6rem);color:var(--cream);
+    letter-spacing:.2em;opacity:0;animation:fadeUp 2s 1s forwards
+  }
+  .hero-tag{margin-top:1rem;color:var(--violet);font-size:.95rem;letter-spacing:.3em;opacity:0;animation:fadeUp 2s 1.4s forwards}
+  .scroll-hint{position:absolute;bottom:3rem;left:50%;transform:translateX(-50%);color:var(--pink);font-size:.85rem;letter-spacing:.3em;animation:bob 2s infinite;opacity:.7}
+  .scroll-hint::after{content:"";display:block;width:1px;height:30px;background:var(--pink);margin:.6rem auto 0;transform-origin:top;animation:scrollLine 2s infinite}
+  @keyframes bob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,8px)}}
+  @keyframes scrollLine{0%{transform:scaleY(0)}50%{transform:scaleY(1);transform-origin:top}50.01%{transform-origin:bottom}100%{transform:scaleY(0)}}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
+  /* ===== 章节标题 ===== */
+  .sec-head{text-align:center;margin-bottom:4rem}
+  .sec-tag{font-family:"ZCOOL XiaoWei",serif;color:var(--violet);letter-spacing:.6em;font-size:.85rem;margin-bottom:.8rem}
+  .sec-title{font-family:"Ma Shan Zheng",serif;font-size:clamp(2.2rem,6vw,3.6rem);color:var(--gold);letter-spacing:.15em}
+  .sec-deco{width:80px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:1.5rem auto 0}
+  /* ===== 开场白 ===== */
+  .intro{text-align:center;max-width:780px;margin:0 auto}
+  .intro p{font-size:clamp(1.05rem,2.2vw,1.25rem);color:var(--cream);margin-bottom:2rem;letter-spacing:.05em}
+  .intro .accent{color:var(--rose);font-weight:600}
+  .intro .quote{
+    font-family:"Ma Shan Zheng",serif;font-size:clamp(1.4rem,3.5vw,2rem);
+    color:var(--gold);margin:3rem 0;letter-spacing:.1em;
+    padding:2rem;border-top:1px solid rgba(255,217,102,.2);border-bottom:1px solid rgba(255,217,102,.2)
+  }
+  /* ===== 蛋糕 ===== */
+  .cake-section{text-align:center}
+  .cake-wrap{display:flex;flex-direction:column;align-items:center;gap:2rem;margin-top:2rem}
+  .cake{
+    position:relative;width:280px;height:240px;cursor:pointer;
+    filter:drop-shadow(0 20px 40px rgba(255,111,174,.3))
+  }
+  .cake .plate{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:320px;height:14px;background:linear-gradient(180deg,#fff4e6,#d4b896);border-radius:50%}
+  .cake .layer{position:absolute;left:50%;transform:translateX(-50%);border-radius:12px 12px 8px 8px;box-shadow:inset 0 -8px 0 rgba(0,0,0,.1)}
+  .cake .layer1{bottom:14px;width:240px;height:80px;background:linear-gradient(180deg,#ffd1e8,#ff8fbc)}
+  .cake .layer2{bottom:94px;width:200px;height:70px;background:linear-gradient(180deg,#ffe6a6,#ffc966)}
+  .cake .layer3{bottom:164px;width:160px;height:60px;background:linear-gradient(180deg,#d4b8ff,#a98cff)}
+  .cake .drip{position:absolute;top:0;left:0;right:0;height:18px;background:inherit;border-radius:12px 12px 0 0}
+  .cake .drip::before,.cake .drip::after{content:"";position:absolute;top:14px;width:14px;height:18px;background:inherit;border-radius:50%}
+  .cake .layer1 .drip::before{left:30px}
+  .cake .layer1 .drip::after{right:40px;height:22px;top:10px}
+  .cake .layer2 .drip::before{left:50px}
+  .cake .layer2 .drip::after{right:30px;top:8px;height:20px}
+  .cake .layer3 .drip::before{left:20px}
+  .candle{position:absolute;bottom:0;width:8px;background:linear-gradient(180deg,#fff4e6,#ffb3d9);border-radius:2px;transition:all .3s}
+  .candle .wick{position:absolute;top:-4px;left:50%;transform:translateX(-50%);width:2px;height:6px;background:#333}
+  .flame{
+    position:absolute;top:-22px;left:50%;transform:translateX(-50%);
+    width:14px;height:22px;background:radial-gradient(ellipse at bottom,#fff 0%,#ffe6a6 30%,#ff9d3c 70%,#ff4d4d 100%);
+    border-radius:50% 50% 50% 50%/60% 60% 40% 40%;
+    box-shadow:0 0 20px #ff9d3c,0 0 40px #ff6fae;
+    animation:flicker .3s infinite alternate;
+    transform-origin:bottom center;
+  }
+  .flame.out{opacity:0;transform:translateX(-50%) translateY(-10px) scale(0)}
+  @keyframes flicker{0%{transform:translateX(-50%) scale(1) rotate(-2deg);box-shadow:0 0 20px #ff9d3c,0 0 40px #ff6fae}100%{transform:translateX(-50%) scale(1.15,.95) rotate(2deg);box-shadow:0 0 25px #ffd966,0 0 50px #ff6fae}}
+  .candle1{left:30%;height:30px;bottom:224px}
+  .candle2{left:50%;height:36px;bottom:224px}
+  .candle3{left:70%;height:32px;bottom:224px}
+  .cake-hint{color:var(--pink);font-family:"ZCOOL XiaoWei",serif;letter-spacing:.2em;font-size:1rem;opacity:.8;transition:opacity .5s}
+  .cake-msg{
+    max-width:600px;font-family:"Ma Shan Zheng",serif;font-size:clamp(1.3rem,3vw,1.8rem);
+    color:var(--gold);letter-spacing:.1em;line-height:2;
+    opacity:0;transform:translateY(20px);transition:all 1s ease;min-height:0;
+  }
+  .cake-msg.show{opacity:1;transform:translateY(0)}
+  /* ===== 卡片墙 ===== */
+  .cards-wall{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.8rem;max-width:1100px;margin:0 auto;perspective:1500px}
+  .flip-card{position:relative;height:280px;cursor:pointer;transform-style:preserve-3d;transition:transform 1s cubic-bezier(.6,0,.4,1)}
+  .flip-card.flipped{transform:rotateY(180deg)}
+  .flip-face{position:absolute;inset:0;backface-visibility:hidden;border-radius:20px;padding:2rem;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;overflow:hidden}
+  .flip-front{
+    background:linear-gradient(135deg,rgba(255,179,217,.18),rgba(179,136,255,.18));
+    border:1px solid rgba(255,217,102,.3);
+    backdrop-filter:blur(10px);
+  }
+  .flip-front::before{content:"";position:absolute;inset:-2px;border-radius:20px;padding:2px;background:linear-gradient(135deg,var(--gold),var(--rose),var(--violet));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+  .flip-num{font-family:"Ma Shan Zheng",serif;font-size:2.2rem;color:var(--gold);margin-bottom:.5rem}
+  .flip-front .label{font-family:"ZCOOL XiaoWei",serif;color:var(--pink);letter-spacing:.3em;font-size:.85rem}
+  .flip-front .flip-tip{position:absolute;bottom:1rem;font-size:.7rem;color:var(--violet);letter-spacing:.2em;opacity:.6}
+  .flip-back{
+    transform:rotateY(180deg);
+    background:linear-gradient(135deg,rgba(255,217,102,.15),rgba(255,111,174,.15));
+    border:1px solid rgba(255,217,102,.4);
+    font-family:"ZCOOL XiaoWei",serif;
+    font-size:1.05rem;color:var(--cream);letter-spacing:.05em;line-height:2
+  }
+  .flip-back .from{margin-top:auto;color:var(--gold);font-size:.8rem;letter-spacing:.2em;align-self:flex-end}
+  /* ===== 时间长河 ===== */
+  .timeline{position:relative}
+  .timeline-rail{position:relative;max-width:900px;margin:0 auto;padding:2rem 0}
+  .timeline-rail::before{content:"";position:absolute;left:50%;top:0;bottom:0;width:2px;background:linear-gradient(180deg,transparent,var(--gold) 20%,var(--rose) 80%,transparent);transform:translateX(-50%)}
+  .tl-item{position:relative;width:50%;padding:2rem 2.5rem;opacity:0;transform:translateY(30px);transition:all 1s}
+  .tl-item.in{opacity:1;transform:translateY(0)}
+  .tl-item:nth-child(odd){left:0;text-align:right}
+  .tl-item:nth-child(even){left:50%;text-align:left}
+  .tl-item .dot{position:absolute;top:2.5rem;width:16px;height:16px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 4px rgba(255,217,102,.2),0 0 20px var(--gold)}
+  .tl-item:nth-child(odd) .dot{right:-8px}
+  .tl-item:nth-child(even) .dot{left:-8px}
+  .tl-year{font-family:"Ma Shan Zheng",serif;color:var(--gold);font-size:1.5rem;letter-spacing:.1em}
+  .tl-text{color:var(--cream);margin-top:.5rem;font-family:"ZCOOL XiaoWei",serif;letter-spacing:.05em}
+  /* ===== 许愿池 ===== */
+  .wish-section{text-align:center;max-width:720px;margin:0 auto}
+  .wish-desc{color:var(--pink);font-family:"ZCOOL XiaoWei",serif;letter-spacing:.15em;margin-bottom:2.5rem;font-size:1.05rem}
+  .wish-form{display:flex;gap:.8rem;justify-content:center;flex-wrap:wrap}
+  .wish-input{
+    flex:1 1 320px;max-width:480px;
+    background:rgba(255,255,255,.05);border:1px solid rgba(255,217,102,.3);
+    color:var(--cream);padding:1rem 1.4rem;border-radius:40px;
+    font-family:"Noto Serif SC",serif;font-size:1rem;outline:none;
+    transition:all .4s;backdrop-filter:blur(10px)
+  }
+  .wish-input:focus{border-color:var(--gold);box-shadow:0 0 0 4px rgba(255,217,102,.15)}
+  .wish-input::placeholder{color:rgba(255,244,230,.4)}
+  .wish-btn{
+    background:linear-gradient(135deg,var(--rose),var(--violet));
+    color:#fff;border:none;padding:1rem 2.2rem;border-radius:40px;
+    font-family:"ZCOOL XiaoWei",serif;letter-spacing:.3em;cursor:pointer;
+    transition:all .4s;box-shadow:0 8px 30px rgba(255,111,174,.4)
+  }
+  .wish-btn:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(255,111,174,.6)}
+  .wish-btn:active{transform:translateY(0)}
+  .wish-list{margin-top:3rem;display:flex;flex-direction:column;gap:1rem;text-align:left}
+  .wish-item{
+    background:rgba(255,255,255,.04);border:1px solid rgba(179,136,255,.2);
+    padding:1rem 1.4rem;border-radius:14px;color:var(--cream);
+    font-family:"ZCOOL XiaoWei",serif;letter-spacing:.05em;
+    animation:wishIn .6s ease both;
+    position:relative;overflow:hidden;
+  }
+  .wish-item::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--gold),var(--rose))}
+  .wish-item .time{color:var(--violet);font-size:.75rem;letter-spacing:.2em;opacity:.7}
+  .wish-item .text{margin-top:.3rem}
+  @keyframes wishIn{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+  /* ===== 尾声 ===== */
+  .ending{text-align:center;padding:12rem 6vw 6rem}
+  .ending-title{font-family:"Ma Shan Zheng",serif;font-size:clamp(2rem,5vw,3rem);color:var(--gold);letter-spacing:.2em;margin-bottom:2rem}
+  .ending p{max-width:680px;margin:0 auto 1.5rem;font-family:"ZCOOL XiaoWei",serif;letter-spacing:.1em;color:var(--cream);font-size:clamp(1rem,2.2vw,1.2rem)}
+  .ending .sign{margin-top:3rem;color:var(--pink);font-family:"Ma Shan Zheng",serif;letter-spacing:.3em;font-size:1.2rem}
+  .ending .sign small{display:block;color:var(--violet);font-family:"ZCOOL XiaoWei",serif;font-size:.8rem;letter-spacing:.4em;margin-top:.6rem;opacity:.7}
+  /* ===== 音乐按钮 ===== */
+  #music{
+    position:fixed;bottom:2rem;right:2rem;z-index:100;
+    width:48px;height:48px;border-radius:50%;
+    background:rgba(255,255,255,.08);border:1px solid rgba(255,217,102,.4);
+    color:var(--gold);cursor:pointer;font-size:1.1rem;
+    backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;
+    transition:all .3s
+  }
+  #music:hover{transform:scale(1.1);box-shadow:0 0 20px rgba(255,217,102,.5)}
+  #music.playing{animation:musicSpin 3s linear infinite}
+  @keyframes musicSpin{to{transform:rotate(360deg)}}
+  /* ===== 彩蛋提示 ===== */
+  .toast{
+    position:fixed;top:2rem;left:50%;transform:translateX(-50%) translateY(-100px);
+    background:linear-gradient(135deg,rgba(255,111,174,.95),rgba(179,136,255,.95));
+    color:#fff;padding:.8rem 2rem;border-radius:40px;
+    font-family:"ZCOOL XiaoWei",serif;letter-spacing:.2em;
+    z-index:9999;transition:transform .5s cubic-bezier(.5,0,0,1);
+    box-shadow:0 10px 40px rgba(255,111,174,.4)
+  }
+  .toast.show{transform:translateX(-50%) translateY(0)}
+  /* ===== 响应式 ===== */
+  @media(max-width:640px){
+    section{padding:5rem 6vw}
+    .timeline-rail::before{left:20px}
+    .tl-item{width:100%;left:0!important;text-align:left!important;padding-left:3rem}
+    .tl-item .dot{left:12px!important;right:auto!important}
+    .cards-wall{grid-template-columns:1fr}
+    body{cursor:auto}
+    .cursor-dot,.cursor-ring{display:none}
+  }
+  @media(prefers-reduced-motion:reduce){
+    *{animation-duration:.01ms!important;transition-duration:.01ms!important}
+  }
+</style>
+</head>
+<body>
+  <div class="cursor-dot" id="cDot"></div>
+  <div class="cursor-ring" id="cRing"></div>
+
+  <!-- 加载页 -->
+  <div id="loader">
+    <div class="loader-title">致小渔</div>
+    <div class="loader-sub">正在为你点亮星河</div>
+    <div class="loader-bar"></div>
+  </div>
+
+  <!-- Canvas 层 -->
+  <canvas id="stars"></canvas>
+  <canvas id="fireworks"></canvas>
+
+  <main>
+    <!-- Hero -->
+    <section class="hero">
+      <div class="hero-eyebrow">群 友 集 体 贺 电</div>
+      <h1 class="hero-title" id="heroTitle" title="点击三次试试看">小渔</h1>
+      <div class="hero-sub">愿你三冬暖 · 愿你春不寒</div>
+      <div class="hero-tag">天黑有灯 · 下雨有伞 · 此生尽兴</div>
+      <div class="scroll-hint">向下滑动</div>
+    </section>
+
+    <!-- 开场白 -->
+    <section class="intro reveal">
+      <p>时光这东西，是会偏心的。它对所有人都匆匆，唯独对今天格外温柔——</p>
+      <p>因为今天，<span class="accent">是世界把你交到我们手里的日子</span>。</p>
+      <div class="quote">山有木兮木有枝，<br/>心悦君兮——君今日生辰。</div>
+      <p>你是群里那条游得最欢脱的鱼，是深夜话题里最亮的那盏灯，是我们都舍不得潜水时的不二理由。</p>
+      <p>所以今天，我们把群聊的频道悄悄调成了<span class="accent">小渔专属频率</span>，让一整年的祝福，都为你单独播送一次。</p>
+    </section>
+
+    <!-- 互动蛋糕 -->
+    <section class="cake-section reveal">
+      <div class="sec-head">
+        <div class="sec-tag">第 一 章 · 吹 蜡 烛</div>
+        <h2 class="sec-title">许个愿吧</h2>
+        <div class="sec-deco"></div>
+      </div>
+      <div class="cake-wrap">
+        <div class="cake" id="cake">
+          <div class="plate"></div>
+          <div class="layer layer1"><div class="drip"></div></div>
+          <div class="layer layer2"><div class="drip"></div></div>
+          <div class="layer layer3"><div class="drip"></div></div>
+          <div class="candle candle1"><div class="wick"></div><div class="flame" data-i="0"></div></div>
+          <div class="candle candle2"><div class="wick"></div><div class="flame" data-i="1"></div></div>
+          <div class="candle candle3"><div class="wick"></div><div class="flame" data-i="2"></div></div>
+        </div>
+        <div class="cake-hint" id="cakeHint">↑ 点亮每根蜡烛，许愿后再吹灭它们 ↑</div>
+        <div class="cake-msg" id="cakeMsg"></div>
+      </div>
+    </section>
+
+    <!-- 祝福卡片墙 -->
+    <section class="reveal">
+      <div class="sec-head">
+        <div class="sec-tag">第 二 章 · 群 友 来 信</div>
+        <h2 class="sec-title">十封悄悄话</h2>
+        <div class="sec-deco"></div>
+      </div>
+      <div class="cards-wall" id="cardsWall"></div>
+    </section>
+
+    <!-- 时间长河 -->
+    <section class="timeline reveal">
+      <div class="sec-head">
+        <div class="sec-tag">第 三 章 · 时 光 长 河</div>
+        <h2 class="sec-title">从今往后</h2>
+        <div class="sec-deco"></div>
+      </div>
+      <div class="timeline-rail" id="timeline"></div>
+    </section>
+
+    <!-- 许愿池 -->
+    <section class="wish-section reveal">
+      <div class="sec-head">
+        <div class="sec-tag">第 四 章 · 星 河 许 愿 池</div>
+        <h2 class="sec-title">写下你的愿望</h2>
+        <div class="sec-deco"></div>
+      </div>
+      <p class="wish-desc">小渔，闭上眼睛，许个愿望吧——<br/>传说生日这天许的愿望，宇宙会替你好好记着。</p>
+      <form class="wish-form" id="wishForm">
+        <input class="wish-input" id="wishInput" type="text" maxlength="60" placeholder="把愿望说给星河听..." />
+        <button class="wish-btn" type="submit">许 愿</button>
+      </form>
+      <div class="wish-list" id="wishList"></div>
+    </section>
+
+    <!-- 尾声 -->
+    <section class="ending reveal">
+      <h2 class="ending-title">后 记</h2>
+      <p>这场为你办的仪式，到这里就要落幕了。</p>
+      <p>但群友们对你的偏爱，是一档不会下播的节目。</p>
+      <p>愿你前程似锦，且行且歌；愿你回望此生，无憾无惧。</p>
+      <p>愿你做个永远兴致盎然的人，<br/>在每一个不算生日的日子里，也活得像主角。</p>
+      <div class="sign">群友 敬上<small>— 此致 · 岁岁年年 —</small></div>
+    </section>
+  </main>
+
+  <button id="music" title="背景音乐">♪</button>
+  <div class="toast" id="toast"></div>
+
+<script>
+/* ===== 工具 ===== */
+const $ = (s,r=document)=>r.querySelector(s);
+const $$ = (s,r=document)=>[...r.querySelectorAll(s)];
+const rand = (a,b)=>a+Math.random()*(b-a);
+const TAU = Math.PI*2;
+
+/* ===== 加载页 ===== */
+window.addEventListener('load',()=>{
+  setTimeout(()=>{$('#loader').classList.add('hide');},2200);
+});
+
+/* ===== 自定义光标 ===== */
+const cDot=$('#cDot'), cRing=$('#cRing');
+let mx=innerWidth/2, my=innerHeight/2, rx=mx, ry=my;
+window.addEventListener('mousemove',e=>{
+  mx=e.clientX; my=e.clientY;
+  cDot.style.left=mx+'px'; cDot.style.top=my+'px';
+});
+function cursorLoop(){
+  rx+=(mx-rx)*.18; ry+=(my-ry)*.18;
+  cRing.style.left=rx+'px'; cRing.style.top=ry+'px';
+  requestAnimationFrame(cursorLoop);
+}
+cursorLoop();
+$$('a,button,.flip-card,.candle,#heroTitle,.cake').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cRing.style.width='52px';cRing.style.height='52px';cRing.style.borderColor='var(--gold)';});
+  el.addEventListener('mouseleave',()=>{cRing.style.width='36px';cRing.style.height='36px';cRing.style.borderColor='var(--pink)';});
+});
+
+/* ===== 背景星点 ===== */
+const starsC=$('#stars'), sctx=starsC.getContext('2d');
+let sw,sh,stars=[];
+function resizeStars(){
+  sw=starsC.width=innerWidth; sh=starsC.height=innerHeight;
+  stars=Array.from({length:Math.floor(sw*sh/9000)},()=>({
+    x:Math.random()*sw, y:Math.random()*sh,
+    r:Math.random()*1.2+.2, a:Math.random(), v:Math.random()*.02+.005,
+    vx:(Math.random()-.5)*.05, vy:(Math.random()-.5)*.05,
+    hue:Math.random()<.3?'#ffd966':Math.random()<.5?'#ff6fae':'#b388ff'
+  }));
+}
+resizeStars();
+addEventListener('resize',resizeStars);
+function drawStars(){
+  sctx.clearRect(0,0,sw,sh);
+  stars.forEach(s=>{
+    s.a+=s.v; if(s.a>1||s.a<0)s.v=-s.v;
+    s.x+=s.vx; s.y+=s.vy;
+    if(s.x<0)s.x=sw; if(s.x>sw)s.x=0; if(s.y<0)s.y=sh; if(s.y>sh)s.y=0;
+    sctx.globalAlpha=Math.abs(Math.sin(s.a*Math.PI))*.9;
+    sctx.fillStyle=s.hue;
+    sctx.beginPath();sctx.arc(s.x,s.y,s.r,0,TAU);sctx.fill();
+    if(s.r>1){sctx.globalAlpha*=.3;sctx.beginPath();sctx.arc(s.x,s.y,s.r*3,0,TAU);sctx.fill();}
+  });
+  sctx.globalAlpha=1;
+  requestAnimationFrame(drawStars);
+}
+drawStars();
+
+/* ===== 鼠标跟随粒子 ===== */
+const fC=$('#fireworks'), fctx=fC.getContext('2d');
+let fw,fh;
+function resizeF(){fw=fC.width=innerWidth;fh=fC.height=innerHeight;}
+resizeF();addEventListener('resize',resizeF);
+let trail=[];
+addEventListener('mousemove',e=>{
+  if(Math.random()<.4){
+    trail.push({x:e.clientX,y:e.clientY,life:1,r:rand(1,3),hue:['#ffd966','#ff6fae','#b388ff','#7af5ff'][Math.floor(Math.random()*4)]});
+  }
+});
+let fireworks=[], sparks=[];
+function spawnFirework(x,y,hue){
+  fireworks.push({x,y,life:1,particles:Array.from({length:60},()=>({
+    a:Math.random()*TAU, v:rand(2,7), vr:rand(.92,.98),
+    x,y,r:rand(1.5,3),hue:hue||['#ffd966','#ff6fae','#b388ff','#7af5ff','#fff4e6'][Math.floor(Math.random()*5)]
+  }))});
+}
+function drawFX(){
+  fctx.clearRect(0,0,fw,fh);
+  // 鼠标轨迹
+  trail=trail.filter(t=>{t.life-=.025;return t.life>0;});
+  trail.forEach(t=>{
+    fctx.globalAlpha=t.life;
+    fctx.fillStyle=t.hue;
+    fctx.beginPath();fctx.arc(t.x,t.y,t.r,0,TAU);fctx.fill();
+    fctx.globalAlpha=t.life*.3;
+    fctx.beginPath();fctx.arc(t.x,t.y,t.r*4,0,TAU);fctx.fill();
+  });
+  // 烟花
+  fireworks=fireworks.filter(f=>{
+    f.life-=.012;
+    f.particles.forEach(p=>{
+      p.v*=p.vr;
+      p.x+=Math.cos(p.a)*p.v;
+      p.y+=Math.sin(p.a)*p.v+0.08; // 重力
+      fctx.globalAlpha=f.life;
+      fctx.fillStyle=p.hue;
+      fctx.beginPath();fctx.arc(p.x,p.y,p.r,0,TAU);fctx.fill();
+      fctx.globalAlpha=f.life*.4;
+      fctx.beginPath();fctx.arc(p.x,p.y,p.r*3,0,TAU);fctx.fill();
+    });
+    return f.life>0;
+  });
+  fctx.globalAlpha=1;
+  requestAnimationFrame(drawFX);
+}
+drawFX();
+
+/* 点击烟花 */
+addEventListener('click',e=>{
+  if(e.target.closest('button,input,.flip-card,.candle,#heroTitle'))return;
+  spawnFirework(e.clientX,e.clientY);
+});
+
+/* ===== 蛋糕吹蜡烛 ===== */
+const flames=$$('.flame');
+let litCount=0, blown=false;
+const cakeMsgs=[
+  "三盏烛火，三生有幸。\n愿你被世界温柔以待，被时光细细收藏。",
+  "蜡烛吹灭的瞬间，星河替你接住了愿望。\n愿你前程似锦，且行且歌。",
+  "愿你眼里有星辰，心中有山海，所行皆坦途。\n生日快乐，小渔。"
+];
+flames.forEach(f=>{
+  f.addEventListener('click',e=>{
+    e.stopPropagation();
+    if(f.classList.contains('out'))return;
+    f.classList.add('out');
+    litCount++;
+    spawnFirework(f.getBoundingClientRect().left+7, f.getBoundingClientRect().top,'#ffd966');
+    if(litCount===3 && !blown){
+      blown=true;
+      $('#cakeHint').style.opacity='0';
+      const msg=$('#cakeMsg');
+      let idx=0;
+      const showNext=()=>{
+        if(idx>=cakeMsgs.length)return;
+        msg.classList.remove('show');
+        setTimeout(()=>{
+          msg.textContent=cakeMsgs[idx];
+          msg.classList.add('show');
+          idx++;
+          setTimeout(showNext,3200);
+        },400);
+      };
+      setTimeout(showNext,600);
+      // 庆祝烟花
+      for(let i=0;i<6;i++){
+        setTimeout(()=>spawnFirework(rand(100,innerWidth-100),rand(100,innerHeight/2)),i*180);
+      }
+      showToast('愿望已发送至宇宙');
+    }
+  });
+});
+
+/* ===== 祝福卡片 ===== */
+const blessings=[
+  {n:"01",front:"日 出",text:"愿你常欢笑，常被爱，常有惊喜在窗外。"},
+  {n:"02",front:"晚 风",text:"愿你的烦恼像头发一样，少一点，再少一点。"},
+  {n:"03",front:"星 河",text:"愿你被岁月偏爱，被生活优待，被自己温柔以待。"},
+  {n:"04",front:"海 浪",text:"山高水长，我们来日方长；今朝有酒，今朝醉你。"},
+  {n:"05",front:"山 海",text:"愿你眼里有星辰，心中有山海，所行皆坦途。"},
+  {n:"06",front:"烟 火",text:"愿你的快乐不止今日，愿你的好运全年在线。"},
+  {n:"07",front:"新 程",text:"生日是新的开始，愿你今年比去年更野一点。"},
+  {n:"08",front:"甜 咸",text:"愿你余生皆是甜的，连咸鱼也是甜咸鱼。"},
+  {n:"09",front:"三 暴",text:"祝你暴富、暴美、暴开心，三暴齐发！"},
+  {n:"10",front:"自 由",text:"愿你做个自由的人，不为谁改变，只为自己精彩。"}
+];
+const cardsWall=$('#cardsWall');
+blessings.forEach(b=>{
+  const card=document.createElement('div');
+  card.className='flip-card';
+  card.innerHTML=`
+    <div class="flip-face flip-front">
+      <div class="flip-num">${b.n}</div>
+      <div class="label">${b.front}</div>
+      <div class="flip-tip">轻 触 翻 面</div>
+    </div>
+    <div class="flip-face flip-back">
+      <div>${b.text}</div>
+      <div class="from">— 群 友 寄</div>
+    </div>`;
+  card.addEventListener('click',()=>{
+    card.classList.toggle('flipped');
+    if(card.classList.contains('flipped')){
+      const r=card.getBoundingClientRect();
+      spawnFirework(r.left+r.width/2,r.top+r.height/2);
+    }
+  });
+  cardsWall.appendChild(card);
+});
+
+/* ===== 时间长河 ===== */
+const tlData=[
+  {year:"此 刻",text:"群里的祝福如潮水涌来，每一句都是为你而留。"},
+  {year:"明 日",text:"愿你醒来时阳光正好，咖啡不凉，闹钟不响。"},
+  {year:"下 月",text:"愿你读到一本好书，遇见一件好事，吃顿好饭。"},
+  {year:"明 年",text:"愿你回首今日，会觉得这一年的自己，没辜负这个生日。"},
+  {year:"三 年 后",text:"愿你活成自己喜欢的样子，又飒又稳，又野又温柔。"},
+  {year:"多 年 后",text:"愿你讲起今天，眼里仍有光，像此刻被星河点亮的你。"}
+];
+const timeline=$('#timeline');
+tlData.forEach(d=>{
+  const it=document.createElement('div');
+  it.className='tl-item reveal';
+  it.innerHTML=`<div class="dot"></div><div class="tl-year">${d.year}</div><div class="tl-text">${d.text}</div>`;
+  timeline.appendChild(it);
+});
+
+/* ===== 滚动揭示 ===== */
+function checkReveal(){
+  const vh=innerHeight;
+  $$('.reveal:not(.in)').forEach(el=>{
+    const r=el.getBoundingClientRect();
+    if(r.top < vh*0.88){el.classList.add('in');}
+  });
+}
+const io=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}
+  });
+},{threshold:.1,rootMargin:'0px 0px -10% 0px'});
+$$('.reveal').forEach(el=>io.observe(el));
+let scrollT;
+addEventListener('scroll',()=>{clearTimeout(scrollT);scrollT=setTimeout(checkReveal,80);},{passive:true});
+setTimeout(checkReveal,200);
+addEventListener('load',()=>setTimeout(checkReveal,2400));
+// RAF兜底：每帧渲染前检查，确保任何环境下都能正常揭示（60秒后停止）
+const _rafStart=Date.now();
+function _rafReveal(){
+  checkReveal();
+  const remain=document.querySelectorAll('.reveal:not(.in)').length;
+  if(remain>0 && Date.now()-_rafStart<60000){
+    requestAnimationFrame(_rafReveal);
+  }
+}
+requestAnimationFrame(_rafReveal);
+// 终极兜底：3秒后若揭示机制均未生效，逐个激活所有元素模拟动画
+addEventListener('load',()=>{
+  setTimeout(()=>{
+    if(document.querySelectorAll('.reveal.in').length===0){
+      $$('.reveal').forEach((el,i)=>setTimeout(()=>el.classList.add('in'),i*180));
+    }
+  },3000);
+});
+
+/* ===== 许愿池 ===== */
+const wishForm=$('#wishForm'), wishInput=$('#wishInput'), wishList=$('#wishList');
+let wishes=JSON.parse(localStorage.getItem('xy_wishes')||'[]');
+function renderWishes(){
+  wishList.innerHTML=wishes.slice().reverse().map(w=>`
+    <div class="wish-item">
+      <div class="time">${w.time}</div>
+      <div class="text">${w.text.replace(/</g,'&lt;')}</div>
+    </div>`).join('');
+}
+renderWishes();
+wishForm.addEventListener('submit',e=>{
+  e.preventDefault();
+  const t=wishInput.value.trim();
+  if(!t){showToast('愿望不能为空哦');return;}
+  if(wishes.length>=12){showToast('许愿池已经满啦，宇宙装不下更多了');return;}
+  const now=new Date();
+  const time=`${now.getMonth()+1}月${now.getDate()}日 ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  wishes.push({text:t,time});
+  localStorage.setItem('xy_wishes',JSON.stringify(wishes));
+  renderWishes();
+  wishInput.value='';
+  // 庆祝烟花
+  for(let i=0;i<4;i++)setTimeout(()=>spawnFirework(rand(200,innerWidth-200),rand(150,innerHeight/2)),i*200);
+  showToast('愿望已许下，星河已签收');
+});
+
+/* ===== Toast ===== */
+const toast=$('#toast');
+let toastTimer;
+function showToast(msg){
+  toast.textContent=msg;
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>toast.classList.remove('show'),2600);
+}
+
+/* ===== 彩蛋：连点主标题3次触发超烟花 ===== */
+const heroTitle=$('#heroTitle');
+let clickCount=0, clickTimer;
+heroTitle.addEventListener('click',()=>{
+  clickCount++;
+  clearTimeout(clickTimer);
+  clickTimer=setTimeout(()=>clickCount=0,1200);
+  if(clickCount>=3){
+    clickCount=0;
+    for(let i=0;i<20;i++){
+      setTimeout(()=>spawnFirework(rand(50,innerWidth-50),rand(50,innerHeight-200)),i*120);
+    }
+    showToast('小渔，你触发了群友的隐藏彩蛋');
+  }
+});
+
+/* ===== 背景音乐（Web Audio 合成） ===== */
+let audioCtx, musicOn=false, musicTimer;
+const melody=[
+  // 简化版《祝你生日快乐》
+  [0,264,0.3],[0.3,264,0.15],[0.45,297,0.4],[0.85,264,0.4],[1.25,352,0.4],[1.65,330,0.8],
+  [2.5,264,0.3],[2.8,264,0.15],[2.95,297,0.4],[3.35,264,0.4],[3.75,396,0.4],[4.15,352,0.8],
+  [5.0,264,0.3],[5.3,264,0.15],[5.45,528,0.4],[5.85,440,0.4],[6.25,352,0.4],[6.65,330,0.4],[7.05,297,0.8],
+  [7.9,466,0.3],[8.2,466,0.15],[8.35,440,0.4],[8.75,352,0.4],[9.15,396,0.4],[9.55,352,1.2]
+];
+function playNote(freq,dur){
+  const o=audioCtx.createOscillator(), g=audioCtx.createGain();
+  o.type='triangle'; o.frequency.value=freq;
+  o.connect(g); g.connect(audioCtx.destination);
+  const t=audioCtx.currentTime;
+  g.gain.setValueAtTime(0,t);
+  g.gain.linearRampToValueAtTime(.18,t+.05);
+  g.gain.exponentialRampToValueAtTime(.001,t+dur);
+  o.start(t); o.stop(t+dur+.1);
+}
+function playMelody(){
+  if(!musicOn)return;
+  melody.forEach(n=>{
+    setTimeout(()=>{if(musicOn)playNote(n[1],n[2]);},n[0]*1000);
+  });
+  musicTimer=setTimeout(playMelody,10500);
+}
+const musicBtn=$('#music');
+musicBtn.addEventListener('click',()=>{
+  if(!audioCtx)audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+  musicOn=!musicOn;
+  if(musicOn){
+    audioCtx.resume();
+    musicBtn.classList.add('playing');
+    musicBtn.textContent='♪';
+    playMelody();
+    showToast('为小渔点了一首生日歌');
+  }else{
+    musicBtn.classList.remove('playing');
+    clearTimeout(musicTimer);
+    showToast('音乐已暂停');
+  }
+});
+
+/* ===== 首次互动提示烟花 ===== */
+setTimeout(()=>{
+  spawnFirework(innerWidth/2,innerHeight/2,'#ff6fae');
+},2800);
+</script>
+</body>
+</html>
